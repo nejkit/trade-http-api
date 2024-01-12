@@ -8,10 +8,10 @@ type ParserFunc[T any] func(amqp091.Delivery) (*T, error)
 type Processor[T any] struct {
 	idFunc     IdFunc[T]
 	parserFunc ParserFunc[T]
-	storage    Storage[T]
+	storage    *Storage[T]
 }
 
-func NewProcessor[T any](idFunc IdFunc[T], parserFunc ParserFunc[T], storage Storage[T]) Processor[T] {
+func NewProcessor[T any](idFunc IdFunc[T], parserFunc ParserFunc[T], storage *Storage[T]) Processor[T] {
 	return Processor[T]{idFunc: idFunc, storage: storage, parserFunc: parserFunc}
 }
 
