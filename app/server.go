@@ -24,6 +24,14 @@ func (s *ServerApi) StartServe(ctx context.Context) {
 		s.handler.HandleCreateAsset(ctx)
 	})
 
+	router.POST("/emmit-asset", func(ctx *gin.Context) {
+		s.handler.HandleEmmitAsset(ctx)
+	})
+
+	router.GET("/asset/:assetid", func(ctx *gin.Context) {
+		s.handler.HandleGetAssets(ctx)
+	})
+
 	server := &http.Server{
 		Addr:    s.host,
 		Handler: router,

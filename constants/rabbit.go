@@ -13,6 +13,8 @@ const (
 	RkCreateAssetRequest  = "r.trade-api.CreateAssetRequest.#"
 	RkCreateAssetResponse = "r.#.CreateAssetResponse.#"
 
+	RkEmmitAssetRequest = "r.trade-api.EmmitAssetRequest.#"
+
 	RkGetAssetsRequest  = "r.trade-api.GetAssetsRequest.#"
 	RkGetAssetsResponse = "r.#.GetAssetsResponse.#"
 )

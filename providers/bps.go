@@ -3,10 +3,12 @@ package providers
 import (
 	"context"
 	"errors"
+	"trade-http-api/constants"
 	"trade-http-api/external/balances"
 	"trade-http-api/models"
 
 	"github.com/google/uuid"
+	logger "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -30,7 +32,10 @@ func NewBpsProvider(cas IStorage[balances.BpsCreateAssetResponse], gas IStorage[
 
 func (p *BpsProvider) CreateAsset(ctx context.Context, req models.BpsCreateAssetRequest) (*models.BpsCreateAssetResponse, error) {
 	protoReq := mapCreateAssetToProto(req)
-	err := p.sender.SendMessage(ctx, protoReq, "", "")
+
+	logger.Infoln("Request to bps: ", protoReq.String())
+
+	err := p.sender.SendMessage(ctx, protoReq, constants.BpsExchange, constants.RkCreateAssetRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -40,6 +45,8 @@ func (p *BpsProvider) CreateAsset(ctx context.Context, req models.BpsCreateAsset
 	if err != nil {
 		return nil, err
 	}
+
+	logger.Infoln("Receive response from bps: ", resp.String())
 
 	if resp.Error != nil {
 		return nil, errors.New(resp.Error.ErrorCode.String())
@@ -51,7 +58,7 @@ func (p *BpsProvider) CreateAsset(ctx context.Context, req models.BpsCreateAsset
 func (p *BpsProvider) EmmitAsset(ctx context.Context, req models.BpsEmmitAssetRequest) error {
 	protoReq := mapEmmitAssetToProto(req)
 
-	err := p.sender.SendMessage(ctx, protoReq, "", "")
+	err := p.sender.SendMessage(ctx, protoReq, constants.BpsExchange, "")
 
 	if err != nil {
 		return err
@@ -61,15 +68,18 @@ func (p *BpsProvider) EmmitAsset(ctx context.Context, req models.BpsEmmitAssetRe
 }
 
 func (p *BpsProvider) GetAssets(ctx context.Context, id string) (*models.BpsGetAssetsResponse, error) {
-	protoReq := balances.BbsGetAssetInfoRequest{Id: uuid.NewString(), AssetId: id}
-
-	err := p.sender.SendMessage(ctx, &protoReq, "", "")
+	reqId := uuid.NewString()
+	protoReq := balances.BbsGetAssetInfoRequest{Id: reqId, AssetId: id}
+	logger.Infoln("Request to bps: ", protoReq.String())
+	err := p.sender.SendMessage(ctx, &protoReq, constants.BpsExchange, constants.RkGetAssetsRequest)
 
 	if err != nil {
+		logger.Errorln(err.Error())
 		return nil, err
 	}
 
-	resp, err := p.getAssetsStorage.GetMessageById(id)
+	resp, err := p.getAssetsStorage.GetMessageById(reqId)
+	logger.Infoln("Response from bps: ", resp.String())
 
 	if err != nil {
 		return nil, err
@@ -111,6 +121,7 @@ func mapEmmitAssetToProto(req models.BpsEmmitAssetRequest) *balances.BpsEmmitAss
 }
 
 func mapGetAssetsResponse(protoResp *balances.BpsGetAssetInfoResponse) *models.BpsGetAssetsResponse {
+	logger.Infoln(protoResp.String())
 	resp := models.BpsGetAssetsResponse{AssetId: protoResp.AssetId, CreatedDate: protoResp.CreatedDate.AsTime()}
 
 	for _, balInfo := range protoResp.BalancesInfo {

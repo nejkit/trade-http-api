@@ -49,3 +49,49 @@ func (h *HttpHandler) HandleCreateAsset(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, resp)
 }
+
+func (h *HttpHandler) HandleEmmitAsset(ctx *gin.Context) {
+	var request models.BpsEmmitAssetRequest
+
+	err := ctx.BindJSON(&request)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, "Bad JSON type")
+		return
+	}
+
+	err = validators.ValidateEmmitAssetRequest(request)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"Validation error": err.Error()})
+		return
+	}
+
+	err = h.bpsProvider.EmmitAsset(ctx, request)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.Status(http.StatusOK)
+}
+
+func (h *HttpHandler) HandleGetAssets(ctx *gin.Context) {
+
+	assetId := ctx.Param("assetid")
+
+	if assetId == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"Validation error": "InvalidAssetId"})
+		return
+	}
+
+	resp, err := h.bpsProvider.GetAssets(ctx, assetId)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	ctx.JSON(http.StatusOK, resp)
+}

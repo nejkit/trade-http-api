@@ -24,6 +24,7 @@ func (p *Processor[T]) processMessage(msg amqp091.Delivery) {
 	}
 
 	msgId := p.idFunc(body)
+	msg.Ack(false)
 
 	p.storage.SaveMessageWithId(msgId, body)
 }
