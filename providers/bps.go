@@ -58,7 +58,7 @@ func (p *BpsProvider) CreateAsset(ctx context.Context, req models.BpsCreateAsset
 func (p *BpsProvider) EmmitAsset(ctx context.Context, req models.BpsEmmitAssetRequest) error {
 	protoReq := mapEmmitAssetToProto(req)
 
-	err := p.sender.SendMessage(ctx, protoReq, constants.BpsExchange, "")
+	err := p.sender.SendMessage(ctx, protoReq, constants.BpsExchange, constants.RkEmmitAssetRequest)
 
 	if err != nil {
 		return err
