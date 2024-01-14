@@ -14,6 +14,7 @@ type BalanceInfo struct {
 }
 
 type BpsCreateAssetRequest struct {
+	AccountId         string             `json:"account_id,omitempty" validate:"required"`
 	EmmitBalanceInfos []EmmitBalanceInfo `json:"emmit_balance_infos,omitempty"`
 }
 

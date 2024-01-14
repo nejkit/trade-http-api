@@ -101,7 +101,8 @@ func mapEmmitDataToProto(data []models.EmmitBalanceInfo) []*balances.EmmitBalanc
 
 func mapCreateAssetToProto(req models.BpsCreateAssetRequest) *balances.BpsCreateAssetRequest {
 	protoReq := balances.BpsCreateAssetRequest{
-		Id: uuid.NewString(),
+		Id:        uuid.NewString(),
+		AccountId: req.AccountId,
 	}
 	if req.EmmitBalanceInfos == nil {
 		return &protoReq
